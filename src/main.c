@@ -4,18 +4,22 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_timer.h>
 
-#define WINDOW_WIDTH (640)
-#define WINDOW_HEIGHT (480)
+#include "ball.h"
+#include "paddle.h"
+
+#define WINDOW_WIDTH (800)
+#define WINDOW_HEIGHT (600)
 
 int main(int argc, char *argv[])
 {
     SDL_Window *window;
     SDL_Renderer *renderer;
-    SDL_Surface *surface;
-    SDL_Texture *texture;
-    SDL_Rect dstrect;
     SDL_Event event;
     bool close_requested;
+
+    ball_t *ball;
+    paddle_t *paddle0;
+    paddle_t *paddle1;
 
     if (SDL_Init(SDL_INIT_VIDEO) != 0)
     {
@@ -29,34 +33,9 @@ int main(int argc, char *argv[])
         return 1;
     }
 
-    surface = SDL_CreateRGBSurfaceWithFormat(0, 80, 80, 64, SDL_PIXELFORMAT_RGBA32);
-    if (!surface)
-    {
-        printf("error creating surface: %s\n", SDL_GetError());
-        SDL_DestroyRenderer(renderer);
-        SDL_DestroyWindow(window);
-        SDL_Quit();
-        return 1;
-    }
-    SDL_FillRect(surface, NULL, SDL_MapRGB(surface->format, 255, 0, 0));
-
-    texture = SDL_CreateTextureFromSurface(renderer, surface);
-    SDL_FreeSurface(surface);
-    if (!texture)
-    {
-        printf("error creating texture: %s\n", SDL_GetError());
-        SDL_DestroyRenderer(renderer);
-        SDL_DestroyWindow(window);
-        SDL_Quit();
-        return 1;
-    }
-
-    SDL_QueryTexture(texture, NULL, NULL, &dstrect.w, &dstrect.h);
-    dstrect.w /= 4;
-    dstrect.h /= 4;
-
-    dstrect.x = (WINDOW_WIDTH - dstrect.w) / 2;
-    dstrect.y = (WINDOW_HEIGHT - dstrect.h) / 2;
+    ball = create_ball(renderer, 80, 300, 100);
+    paddle0 = create_paddle(renderer, 60, 120, 40, 100);
+    paddle1 = create_paddle(renderer, 60, 120, 500, 100);
 
     while (!close_requested)
     {
@@ -69,14 +48,19 @@ int main(int argc, char *argv[])
         }
 
         SDL_RenderClear(renderer);
-        
-        SDL_RenderCopy(renderer, texture, NULL, &dstrect);
+
+        move_ball(ball);
+        move_paddle(paddle0);
+        move_paddle(paddle1);
+
+        render_ball(renderer, ball);
+        render_paddle(renderer, paddle0);
+        render_paddle(renderer, paddle1);
         SDL_RenderPresent(renderer);
         
         SDL_Delay(1000/60);
     }
 
-    SDL_DestroyTexture(texture);
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
     SDL_Quit();
