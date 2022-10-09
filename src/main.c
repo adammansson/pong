@@ -103,7 +103,7 @@ int main(int argc, char *argv[])
         {
             int diff = ((ball.y + BALL_SIDE/2) - (l_paddle.y + PADDLE_HEIGHT/2));
             ball_vel.x *= -1;
-            rotate(&ball_vel, (M_PI / 24) * (diff / 5));
+            vec2f_rotate(&ball_vel, (M_PI / 24) * (diff / 5));
             ball_pos.x += 1;
         }
 
@@ -111,7 +111,7 @@ int main(int argc, char *argv[])
         {
             int diff = ((ball.y + BALL_SIDE/2) - (r_paddle.y + PADDLE_HEIGHT/2));
             ball_vel.x *= -1;
-            rotate(&ball_vel, (M_PI / 24) * (-diff / 5) + M_PI);
+            vec2f_rotate(&ball_vel, (M_PI / 24) * (-diff / 5) + M_PI);
             ball_pos.x -= 1;
         }
 
