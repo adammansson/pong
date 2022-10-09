@@ -4,11 +4,11 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_timer.h>
 
-#include "ball.h"
-#include "paddle.h"
-
-#define WINDOW_WIDTH (800)
-#define WINDOW_HEIGHT (600)
+#define WINDOW_WIDTH (580)
+#define WINDOW_HEIGHT (400)
+#define BALL_SIDE (20)
+#define PADDLE_WIDTH (20)
+#define PADDLE_HEIGHT (60)
 
 int main(int argc, char *argv[])
 {
@@ -16,10 +16,8 @@ int main(int argc, char *argv[])
     SDL_Renderer *renderer;
     SDL_Event event;
     bool close_requested;
-
-    ball_t *ball;
-    paddle_t *paddle0;
-    paddle_t *paddle1;
+    bool l_up, l_down, r_up, r_down;
+    l_up = false; l_down = false; r_up = false; r_down = false;
 
     if (SDL_Init(SDL_INIT_VIDEO) != 0)
     {
@@ -33,31 +31,73 @@ int main(int argc, char *argv[])
         return 1;
     }
 
-    ball = create_ball(renderer, 80, 300, 100);
-    paddle0 = create_paddle(renderer, 60, 120, 40, 100);
-    paddle1 = create_paddle(renderer, 60, 120, 500, 100);
+    SDL_Rect ball = { .x=(WINDOW_WIDTH/2 - BALL_SIDE/2), .y=(WINDOW_HEIGHT/2 - BALL_SIDE/2), .w=BALL_SIDE, .h=BALL_SIDE };
+    SDL_Rect l_paddle = { .x=(50 - PADDLE_WIDTH/2), .y=(WINDOW_HEIGHT/2 - PADDLE_HEIGHT/2), .w=PADDLE_WIDTH, .h=PADDLE_HEIGHT };
+    SDL_Rect r_paddle = { .x=(WINDOW_WIDTH - 50 - PADDLE_WIDTH/2), .y=(WINDOW_HEIGHT/2 - PADDLE_HEIGHT/2), .w=PADDLE_WIDTH, .h=PADDLE_HEIGHT };
 
+    // game loop
     while (!close_requested)
     {
+        SDL_Event event;
         while (SDL_PollEvent(&event))
         {
-            if (event.type == SDL_QUIT)
+            switch (event.type)
             {
-                close_requested = true;
+                case SDL_QUIT:
+                    close_requested = true;
+                    break;
+                case SDL_KEYDOWN:
+                    switch (event.key.keysym.scancode)
+                    {
+                        case SDL_SCANCODE_W:
+                            l_up = true;
+                            break;
+                        case SDL_SCANCODE_UP:
+                            r_up = true;
+                            break;
+                        case SDL_SCANCODE_S:
+                            l_down = true;
+                            break;
+                        case SDL_SCANCODE_DOWN:
+                            r_down = true;
+                            break;
+                    }
+                    break;
+                case SDL_KEYUP:
+                    switch (event.key.keysym.scancode)
+                    {
+                        case SDL_SCANCODE_W:
+                            l_up = false;
+                            break;
+                        case SDL_SCANCODE_UP:
+                            r_up = false;
+                            break;
+                        case SDL_SCANCODE_S:
+                            l_down = false;
+                            break;
+                        case SDL_SCANCODE_DOWN:
+                            r_down = false;
+                            break;
+                    }
+                    break;
             }
         }
 
+        if (l_up && !l_down && l_paddle.y >= 0) l_paddle.y -= 5;
+        if (!l_up && l_down && l_paddle.y <= (WINDOW_HEIGHT - PADDLE_HEIGHT)) l_paddle.y += 5;
+        if (r_up && !r_down && r_paddle.y >= 0) r_paddle.y -= 5;
+        if (!r_up && r_down && r_paddle.y <= (WINDOW_HEIGHT - PADDLE_HEIGHT)) r_paddle.y += 5;
+
+        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
         SDL_RenderClear(renderer);
 
-        move_ball(ball);
-        move_paddle(paddle0);
-        move_paddle(paddle1);
+        SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+        SDL_RenderFillRect(renderer, &ball);
+        SDL_RenderFillRect(renderer, &l_paddle);
+        SDL_RenderFillRect(renderer, &r_paddle);
 
-        render_ball(renderer, ball);
-        render_paddle(renderer, paddle0);
-        render_paddle(renderer, paddle1);
         SDL_RenderPresent(renderer);
-        
+
         SDL_Delay(1000/60);
     }
 
