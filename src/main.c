@@ -18,9 +18,11 @@ int main(int argc, char *argv[])
     SDL_Renderer *renderer;
     SDL_Event event;
     bool close_requested;
+    close_requested = false;
     bool l_up, l_down, r_up, r_down;
     l_up = false; l_down = false; r_up = false; r_down = false;
     int l_points, r_points;
+    l_points = 0; r_points = 0;
 
     if (SDL_Init(SDL_INIT_VIDEO) != 0)
     {
@@ -130,7 +132,7 @@ int main(int argc, char *argv[])
             printf("%d vs %d\n", l_points, r_points);
         }
 
-        if (ball.y >= WINDOW_WIDTH)
+        if (ball.x >= WINDOW_WIDTH)
         {
             ball_pos.x=(WINDOW_WIDTH/2 - BALL_SIDE/2);
             ball_pos.y=(WINDOW_HEIGHT/2 - BALL_SIDE/2);
