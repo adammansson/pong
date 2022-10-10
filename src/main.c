@@ -8,7 +8,7 @@
 #define WINDOW_WIDTH (580)
 #define WINDOW_HEIGHT (400)
 #define BALL_SIDE (20)
-#define BALL_SPEED (5)
+#define BALL_SPEED (8)
 #define PADDLE_WIDTH (20)
 #define PADDLE_HEIGHT (70)
 
@@ -20,6 +20,7 @@ int main(int argc, char *argv[])
     bool close_requested;
     bool l_up, l_down, r_up, r_down;
     l_up = false; l_down = false; r_up = false; r_down = false;
+    int l_points, r_points;
 
     if (SDL_Init(SDL_INIT_VIDEO) != 0)
     {
@@ -102,17 +103,39 @@ int main(int argc, char *argv[])
         if (SDL_HasIntersection(&ball, &l_paddle) == SDL_TRUE)
         {
             int diff = ((ball.y + BALL_SIDE/2) - (l_paddle.y + PADDLE_HEIGHT/2));
+
             ball_vel.x *= -1;
-            vec2f_rotate(&ball_vel, (M_PI / 24) * (diff / 5));
+            vec2f_rotate(&ball_vel, (M_PI / 32) * (diff / 5));
+            vec2f_normalize(&ball_vel);
+            vec2f_scale(&ball_vel, BALL_SPEED);
             ball_pos.x += 1;
         }
 
         if (SDL_HasIntersection(&ball, &r_paddle) == SDL_TRUE)
         {
             int diff = ((ball.y + BALL_SIDE/2) - (r_paddle.y + PADDLE_HEIGHT/2));
+
             ball_vel.x *= -1;
-            vec2f_rotate(&ball_vel, (M_PI / 24) * (-diff / 5) + M_PI);
+            vec2f_rotate(&ball_vel, (M_PI / 32) * (-diff / 5) + M_PI);
+            vec2f_normalize(&ball_vel);
+            vec2f_scale(&ball_vel, BALL_SPEED);
             ball_pos.x -= 1;
+        }
+
+        if (ball.x + BALL_SIDE <= 0)
+        {
+            ball_pos.x=(WINDOW_WIDTH/2 - BALL_SIDE/2);
+            ball_pos.y=(WINDOW_HEIGHT/2 - BALL_SIDE/2);
+            l_points++;
+            printf("%d vs %d\n", l_points, r_points);
+        }
+
+        if (ball.y >= WINDOW_WIDTH)
+        {
+            ball_pos.x=(WINDOW_WIDTH/2 - BALL_SIDE/2);
+            ball_pos.y=(WINDOW_HEIGHT/2 - BALL_SIDE/2);
+            r_points++;
+            printf("%d vs %d\n", l_points, r_points);
         }
 
         ball_pos.x += ball_vel.x;
