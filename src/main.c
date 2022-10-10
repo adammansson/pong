@@ -12,6 +12,8 @@
 #define PADDLE_WIDTH (20)
 #define PADDLE_HEIGHT (70)
 
+extern void draw_ssg(SDL_Renderer *renderer, unsigned char n, int x0, int y0, int width);
+
 int main(int argc, char *argv[])
 {
     SDL_Window *window;
@@ -97,14 +99,14 @@ int main(int argc, char *argv[])
         if (r_up && !r_down && r_paddle.y >= 0) r_paddle.y -= 5;
         if (!r_up && r_down && r_paddle.y <= (WINDOW_HEIGHT - PADDLE_HEIGHT)) r_paddle.y += 5;
 
-        if (ball.y <= 0 || ball.y >= WINDOW_HEIGHT - BALL_SIDE) 
+        if (ball_pos.y <= 0 || ball_pos.y >= WINDOW_HEIGHT - BALL_SIDE) 
         {
             ball_vel.y *= -1;
         } 
 
         if (SDL_HasIntersection(&ball, &l_paddle) == SDL_TRUE)
         {
-            int diff = ((ball.y + BALL_SIDE/2) - (l_paddle.y + PADDLE_HEIGHT/2));
+            int diff = ((ball_pos.y + BALL_SIDE/2) - (l_paddle.y + PADDLE_HEIGHT/2));
 
             ball_vel.x *= -1;
             vec2f_rotate(&ball_vel, (M_PI / 32) * (diff / 5));
@@ -115,7 +117,7 @@ int main(int argc, char *argv[])
 
         if (SDL_HasIntersection(&ball, &r_paddle) == SDL_TRUE)
         {
-            int diff = ((ball.y + BALL_SIDE/2) - (r_paddle.y + PADDLE_HEIGHT/2));
+            int diff = ((ball_pos.y + BALL_SIDE/2) - (r_paddle.y + PADDLE_HEIGHT/2));
 
             ball_vel.x *= -1;
             vec2f_rotate(&ball_vel, (M_PI / 32) * (-diff / 5) + M_PI);
@@ -124,20 +126,18 @@ int main(int argc, char *argv[])
             ball_pos.x -= 1;
         }
 
-        if (ball.x + BALL_SIDE <= 0)
+        if (ball_pos.x + BALL_SIDE <= 0)
         {
             ball_pos.x=(WINDOW_WIDTH/2 - BALL_SIDE/2);
             ball_pos.y=(WINDOW_HEIGHT/2 - BALL_SIDE/2);
             l_points++;
-            printf("%d vs %d\n", l_points, r_points);
         }
 
-        if (ball.x >= WINDOW_WIDTH)
+        if (ball_pos.x >= WINDOW_WIDTH)
         {
             ball_pos.x=(WINDOW_WIDTH/2 - BALL_SIDE/2);
             ball_pos.y=(WINDOW_HEIGHT/2 - BALL_SIDE/2);
             r_points++;
-            printf("%d vs %d\n", l_points, r_points);
         }
 
         ball_pos.x += ball_vel.x;
@@ -153,6 +153,9 @@ int main(int argc, char *argv[])
         SDL_RenderFillRect(renderer, &ball);
         SDL_RenderFillRect(renderer, &l_paddle);
         SDL_RenderFillRect(renderer, &r_paddle);
+
+        draw_ssg(renderer, l_points, 10, 10, 30);
+        draw_ssg(renderer, r_points, WINDOW_WIDTH - 40, 10, 30);
 
         SDL_RenderPresent(renderer);
 
