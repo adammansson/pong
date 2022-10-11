@@ -11,6 +11,7 @@
 #define BALL_SPEED (8)
 #define PADDLE_WIDTH (20)
 #define PADDLE_HEIGHT (70)
+#define SSG_WIDTH (25)
 
 extern void draw_ssg(SDL_Renderer *renderer, unsigned char n, int x0, int y0, int width);
 
@@ -154,8 +155,9 @@ int main(int argc, char *argv[])
         SDL_RenderFillRect(renderer, &l_paddle);
         SDL_RenderFillRect(renderer, &r_paddle);
 
-        draw_ssg(renderer, l_points, 10, 10, 30);
-        draw_ssg(renderer, r_points, WINDOW_WIDTH - 40, 10, 30);
+        draw_ssg(renderer, l_points, 10, 10, SSG_WIDTH);
+        draw_ssg(renderer, r_points, WINDOW_WIDTH - SSG_WIDTH - 10, 10, SSG_WIDTH);
+        if (l_points >= 9 || r_points >= 9) return 0;
 
         SDL_RenderPresent(renderer);
 
