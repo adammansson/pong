@@ -109,22 +109,18 @@ int main(int argc, char *argv[])
         {
             int diff = ((ball_pos.y + BALL_SIDE/2) - (l_paddle.y + PADDLE_HEIGHT/2));
 
-            ball_vel.x *= -1;
-            vec2f_rotate(&ball_vel, (M_PI / 32) * (diff / 5));
-            vec2f_normalize(&ball_vel);
+            ball_pos.x += 5;
+            vec2f_set_angle(&ball_vel, (M_PI / 32) * (diff / 5));
             vec2f_scale(&ball_vel, BALL_SPEED);
-            ball_pos.x += 1;
         }
 
         if (SDL_HasIntersection(&ball, &r_paddle) == SDL_TRUE)
         {
             int diff = ((ball_pos.y + BALL_SIDE/2) - (r_paddle.y + PADDLE_HEIGHT/2));
 
-            ball_vel.x *= -1;
-            vec2f_rotate(&ball_vel, (M_PI / 32) * (-diff / 5) + M_PI);
-            vec2f_normalize(&ball_vel);
+            ball_pos.x -= 5;
+            vec2f_set_angle(&ball_vel, (-M_PI / 32.0) * (diff / 5) + M_PI);
             vec2f_scale(&ball_vel, BALL_SPEED);
-            ball_pos.x -= 1;
         }
 
         if (ball_pos.x + BALL_SIDE <= 0)
@@ -140,6 +136,8 @@ int main(int argc, char *argv[])
             ball_pos.y=(WINDOW_HEIGHT/2 - BALL_SIDE/2);
             r_points++;
         }
+
+        /* printf("%f\n", vec2f_length(&ball_vel)); */
 
         ball_pos.x += ball_vel.x;
         ball_pos.y += ball_vel.y;
@@ -157,7 +155,7 @@ int main(int argc, char *argv[])
 
         draw_ssg(renderer, l_points, 10, 10, SSG_WIDTH);
         draw_ssg(renderer, r_points, WINDOW_WIDTH - SSG_WIDTH - 10, 10, SSG_WIDTH);
-        if (l_points >= 9 || r_points >= 9) return 0;
+        if (l_points >= 10 || r_points >= 10) return 0;
 
         SDL_RenderPresent(renderer);
 
